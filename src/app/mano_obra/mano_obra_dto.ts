@@ -1,6 +1,12 @@
-import { IsArray, IsNotEmpty, IsString } from "class-validator"
+import { IsArray, IsNotEmpty, IsString } from "class-validator";
+import { Transform } from "class-transformer";
 
-export class BrigadaQueryDto {
+export class AllQueryDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({each:true})
+  proyectos: string[];
+
   @IsNotEmpty()
   @IsArray()
   @IsString({each:true})
@@ -9,5 +15,36 @@ export class BrigadaQueryDto {
   @IsNotEmpty()
   @IsArray()
   @IsString({each:true})
-  zonas: string[];
+  brigadas:string[];
+
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({each:true})
+  tecnicos:string[];
 }
+
+export class PeriodosQueryDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({each:true})
+  @Transform(({value}) => (Array.isArray(value) ? value :  [value]))
+  proyectos: string[];
+}
+
+export class BrigadaQueryDto extends PeriodosQueryDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({each:true})
+  @Transform(({value}) => (Array.isArray(value) ? value :  [value]))
+  periodos:string[];
+}
+
+export class TecnicoQueryDto extends BrigadaQueryDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({each:true})
+  @Transform(({value}) => (Array.isArray(value) ? value : [value]))
+  brigadas:string[];
+}
+
+

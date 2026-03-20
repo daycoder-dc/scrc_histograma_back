@@ -6,6 +6,7 @@ import { AppModule } from './app/app.module';
 import { NestFactory } from '@nestjs/core';
 import cookie_parser from "cookie-parser";
 import compression from "compression";
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -42,6 +43,16 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true
   }));
+
+  const swagger_config = new DocumentBuilder()
+    .setTitle("SCR Dashboard")
+    .setDescription("Documentación")
+    .setVersion("1.0")
+    .build();
+
+  const swagger_document_factory = SwaggerModule.createDocument(app, swagger_config);
+
+  SwaggerModule.setup("api/docs", app, swagger_document_factory);
 
   await app.listen(Number(process.env.PORT));
 }
