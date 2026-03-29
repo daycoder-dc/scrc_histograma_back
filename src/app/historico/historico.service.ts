@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { EventGateway } from "@/app/event/event.gateway";
 import { HistoricoDto } from "./historico.dto";
 import { HttpService } from "@nestjs/axios";
 import { DataSource } from "typeorm";
@@ -8,7 +9,8 @@ import FormData from "form-data";
 export class HistoricoService {
   constructor (
     private readonly dt: DataSource,
-    private readonly http: HttpService
+    private readonly http: HttpService,
+    private readonly ws: EventGateway
   ) {}
 
   async find_all() {
@@ -46,8 +48,10 @@ export class HistoricoService {
       insert into archivo (nombre, zona) values ($1, $2) returning id
     `, [file.originalname, data.zona]);
 
+    const archivo_id = sql_result[0].id;
+
     const form = new FormData();
-    form.append("archivo_id", sql_result[0].archivo_id);
+    form.append("archivo_id", archivo_id);
     form.append("file", file.buffer, {
       filename: file.originalname,
       contentType: file.mimetype
@@ -63,13 +67,14 @@ export class HistoricoService {
       maxBodyLength: Infinity
     }).subscribe({
       next: () => {
-        console.log("Archivo procesando ...");
+        this.ws.socket.emit("FILE_LOAD_SUCCESS", archivo_id);
       },
       error: (e) => {
         console.error(e);
+        this.ws.socket.emit("FILE_LOAD_ERROR", archivo_id);
       }
     });
 
-    return {"id": sql_result[0].archivo_id};
+    return {"id": archivo_id};
   }
 }
