@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { HistoricoDto } from "./historico.dto";
 import { HttpService } from "@nestjs/axios";
 import { DataSource } from "typeorm";
+import FormData from "form-data";
 
 @Injectable()
 export class HistoricoService {
@@ -41,32 +42,34 @@ export class HistoricoService {
     }
 
     // registrar el archivo a cargar
-    {
-      const sql_result = await this.dt.query(`
-        insert into archivo (nombre, zona) values ($1, $2) returning id
-      `, [file.originalname, data.zona]);
+    const sql_result = await this.dt.query(`
+      insert into archivo (nombre, zona) values ($1, $2) returning id
+    `, [file.originalname, data.zona]);
 
-      const archivo_id =sql_result[0].archivo_id;
-      const ms_host = process.env.MICROSERVICE_HOST!
-      const ms_apikey = process.env.MICROSERVICE_API_KEY!
+    const form = new FormData();
+    form.append("archivo_id", sql_result[0].archivo_id);
+    form.append("file", file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype
+    });
 
-      this.http.postForm(`${ms_host}/api/v1/history/upload`,{archivo_id, file}, {
-        headers: {"X-API-KEY": ms_apikey},
-        timeout: 5 * 60 * 1000,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity
-      }).subscribe({
-        next: () => {
+    this.http.post(`${process.env.MICROSERVICE_HOST!}/ms/v1/history/upload`, form, {
+      headers: {
+        ... form.getHeaders(),
+        "X-API-KEY": process.env.MICROSERVICE_API_KEY!
+      },
+      timeout: 5 * 60 * 1000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity
+    }).subscribe({
+      next: () => {
+        console.log("Archivo procesando ...");
+      },
+      error: (e) => {
+        console.error(e);
+      }
+    });
 
-        },
-        error: (e) => {
-          console.error(e);
-        }
-      });
-    }
-
-    return {
-      "status": "success"
-    }
+    return {"id": sql_result[0].archivo_id};
   }
 }

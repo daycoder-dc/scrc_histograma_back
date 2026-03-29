@@ -2,13 +2,13 @@ import { Body, Controller, FileTypeValidator, ParseFilePipe,
   Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { HistoricoService } from "./historico.service";
-import { ApiTags } from "@nestjs/swagger";
 import { HistoricoDto } from "./historico.dto";
+import { ApiTags } from "@nestjs/swagger";
 
 const mimeType = /(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/vnd\.ms-excel)/;
 
 @ApiTags("Historico")
-@Controller({path:"history", version: "1"})
+@Controller({path:"history"})
 export class HistoricoController {
   constructor (private readonly service: HistoricoService) {}
 

@@ -1,4 +1,5 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpExceptionFilter } from './config/http_exception';
 import { Logger, LoggerErrorInterceptor } from "nestjs-pino"
@@ -6,7 +7,6 @@ import { AppModule } from './app/app.module';
 import { NestFactory } from '@nestjs/core';
 import cookie_parser from "cookie-parser";
 import compression from "compression";
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -19,24 +19,25 @@ async function bootstrap() {
   app.set("trust proxy", 1);
   app.setGlobalPrefix("api");
 
-  app.useLogger(app.get(Logger));
-  app.useGlobalInterceptors(new LoggerErrorInterceptor());
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  app.enableVersioning({type: VersioningType.URI});
-
-  app.useBodyParser("urlencoded", { extended: true });
-  app.useBodyParser("json", { limit: "50mb" });
-
-  app.use(cookie_parser(process.env.SECRET));
-  app.use(compression());
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1'
+  });
 
   app.enableCors({
-    origin: ["*"],
+    origin: "*",
     methods: ["GET", "POST", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true
   });
+
+  app.useLogger(app.get(Logger));
+  app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useBodyParser("urlencoded", { extended: true });
+  app.useBodyParser("json", { limit: "500mb" });
+  app.use(cookie_parser(process.env.SECRET));
+  app.use(compression());
 
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
@@ -52,9 +53,11 @@ async function bootstrap() {
 
   const swagger_document_factory = SwaggerModule.createDocument(app, swagger_config);
 
-  SwaggerModule.setup("api/docs", app, swagger_document_factory);
+  SwaggerModule.setup("docs", app, swagger_document_factory, {
+    useGlobalPrefix: true
+  });
 
-  await app.listen(Number(process.env.PORT));
+  await app.listen(Number(process.env.PORT!));
 }
 
 bootstrap();

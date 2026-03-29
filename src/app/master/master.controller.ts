@@ -2,13 +2,13 @@ import { Body, Controller, FileTypeValidator, ParseFilePipe,
   Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { MasterService } from "./master.service";
-import { MasterDto } from "./master.dto";
 import { ApiTags } from "@nestjs/swagger";
+import { MasterDto } from "./master.dto";
 
 const mimeType = /(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/vnd\.ms-excel)/;
 
 @ApiTags("Maestro")
-@Controller({path: "master", version: "1"})
+@Controller({path: "master"})
 export class MasterController {
   constructor (private readonly service: MasterService) {}
 
