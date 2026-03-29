@@ -1,5 +1,14 @@
-CREATE TABLE maestro_mano_obra (
+create table archivo (
+	id uuid primary key default gen_random_uuid(),
+	nombre varchar null,
+	zona varchar null,
+	eliminado boolean default false,
+	fecha_registro timestamptz default current_timestamp
+);
+
+CREATE TABLE historico (
   id uuid primary key default gen_random_uuid(),
+  archivo_id text null,
   nic VARCHAR NULL,
   orden VARCHAR NULL,
   contrata VARCHAR NULL,
@@ -37,8 +46,9 @@ CREATE TABLE maestro_mano_obra (
   fecha_registro timestamptz default current_timestamp
 );
 
-create table maestro_pagos_csr(
+create table maestro (
   id uuid primary key default gen_random_uuid(),
+  archivo_id text null,
   accion text null,
   estado varchar null,
   se_paga varchar null,
@@ -48,3 +58,7 @@ create table maestro_pagos_csr(
   eliminado boolean default false,
   fecha_registro timestamptz default current_timestamp
 );
+
+drop table if exists historico;
+drop table if exists maestro;
+

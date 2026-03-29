@@ -1,4 +1,6 @@
-import { ManoObraModule } from "./mano_obra/mano_obra_module";
+import { HistoricoModule } from "./historico/historico.module";
+import { MasterModule } from "./master/master.module";
+import { EventModule } from "./event/event.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Request, Response } from "express";
 import { LoggerModule } from "nestjs-pino";
@@ -36,11 +38,12 @@ import { Module } from '@nestjs/common';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      synchronize: process.env.ENV == "dev",
-      logging: process.env.ENV == "dev",
-      autoLoadEntities: true
+      synchronize: false,
+      logging: false
     }),
-    ManoObraModule
+    HistoricoModule,
+    MasterModule,
+    EventModule
   ]
 })
 export class AppModule { }
