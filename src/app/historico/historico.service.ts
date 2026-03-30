@@ -19,13 +19,11 @@ export class HistoricoService {
       h.tipo_os, h.tecnico, to_char(h.fecha, 'YYYY-MM') as periodo,
       h.fecha, h.hora::time, to_char(h.hora::time, 'HH24:00') as tiempo,
       m.estado, m.valor_unitario, subaccion_subanomalia as tipo_actividad,
-      to_char(h.fecha, 'DD') as periodo_dia
+      to_char(h.fecha, 'DD') as periodo_dia, h.accion
       FROM historico h
-      left join maestro m on m.accion = h.accion
+      inner join maestro m on m.accion = h.accion
       WHERE h.eliminado = $1
       and h.fecha is not null
-      and h.tipo_brigada is not null
-      and h.tecnico is not null
       order by h.fecha asc, h.hora::time asc;
     `, [false]);
   }
