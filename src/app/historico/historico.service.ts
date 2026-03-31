@@ -24,6 +24,7 @@ export class HistoricoService {
       inner join maestro m on m.accion = h.accion
       WHERE h.eliminado = $1
       and h.fecha is not null
+      and h.tipo_brigada is not null
       order by h.fecha asc, h.hora::time asc;
     `, [false]);
   }
@@ -74,5 +75,13 @@ export class HistoricoService {
     });
 
     return {"id": archivo_id};
+  }
+
+  async get_date_update() {
+    return this.dt.query<any[]>(`
+      select a.fecha_registro from archivo a
+      order by a.fecha_registro desc
+      limit 1;
+    `);
   }
 }

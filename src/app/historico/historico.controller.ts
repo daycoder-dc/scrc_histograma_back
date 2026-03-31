@@ -1,4 +1,4 @@
-import { Body, Controller, FileTypeValidator, ParseFilePipe,
+import { Body, Controller, FileTypeValidator, Get, ParseFilePipe,
   Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { HistoricoService } from "./historico.service";
@@ -25,5 +25,10 @@ export class HistoricoController {
     ]})
   ) file: Express.Multer.File, @Body() data:HistoricoDto) {
     return this.service.upload_file(file, data)
+  }
+
+  @Get("get%20update%20date")
+  async get_date_update() {
+    return this.service.get_date_update();
   }
 }
