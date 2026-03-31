@@ -12,7 +12,7 @@ const mimeType = /(application\/vnd\.openxmlformats-officedocument\.spreadsheetm
 export class HistoricoController {
   constructor (private readonly service: HistoricoService) {}
 
-  @Post()
+  @Get()
   async find_all() {
     return this.service.find_all();
   }

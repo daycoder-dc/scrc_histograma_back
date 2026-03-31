@@ -9,8 +9,6 @@ services:
       - "traefik.http.routers.scr_histograma_backend.entrypoints=websecure"
       - "traefik.http.routers.scr_histograma_backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.scr_histograma_backend.server.port=3000"
-    ports:
-      - 3000:3000
     networks:
       - scr_histograma_net
     env_file:
