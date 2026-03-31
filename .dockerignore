@@ -1,0 +1,12 @@
+.git/
+dist/
+node_modules/
+
+.editorconfig
+.env
+.dockerignore
+
+docker-compose.yaml
+Dockerfile
+script.sql
+README.md
