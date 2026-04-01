@@ -8,7 +8,7 @@ services:
       - "traefik.http.routers.scr_histograma_backend.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.scr_histograma_backend.entrypoints=websecure"
       - "traefik.http.routers.scr_histograma_backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.scr_histograma_backend.server.port=3000"
+      - "traefik.http.services.scr_histograma_backend.server.loadbalancer.port=3000"
     networks:
       - scr_histograma_net
     env_file:
