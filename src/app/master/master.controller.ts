@@ -4,6 +4,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { MasterService } from "./master.service";
 import { ApiTags } from "@nestjs/swagger";
 import { MasterDto } from "./master.dto";
+import type { Express } from "express";
+import "multer";
 
 const mimeType = /(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/vnd\.ms-excel)/;
 

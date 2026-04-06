@@ -3,7 +3,9 @@ import { EventGateway } from "@/app/event/event.gateway";
 import { HistoricoDto } from "./historico.dto";
 import { HttpService } from "@nestjs/axios";
 import { DataSource } from "typeorm";
+// import { Express } from "express";
 import FormData from "form-data";
+import "multer";
 
 @Injectable()
 export class HistoricoService {

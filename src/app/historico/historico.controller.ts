@@ -4,6 +4,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { HistoricoService } from "./historico.service";
 import { HistoricoDto } from "./historico.dto";
 import { ApiTags } from "@nestjs/swagger";
+import type { Express } from "express";
+import "multer";
 
 const mimeType = /(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/vnd\.ms-excel)/;
 
