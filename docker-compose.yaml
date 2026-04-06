@@ -2,18 +2,6 @@ services:
   scr_histograma_backend:
     build: .
     container_name: scr_histograma_backend
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.scr_histograma_backend.rule=Host(`${TRAEFIK_HOST}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.scr_histograma_backend.entrypoints=websecure"
-      - "traefik.http.routers.scr_histograma_backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.scr_histograma_backend.loadbalancer.server.port=3000"
-    networks:
-      - scr_histograma_net
+    restart: always
     env_file:
       - .env
-
-networks:
-  scr_histograma_net:
-    external: true
