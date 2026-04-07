@@ -48,13 +48,15 @@ async function bootstrap() {
   const swagger_config = new DocumentBuilder()
     .setTitle("SCR Dashboard")
     .setDescription("Documentación")
+    .addApiKey()
     .setVersion("1.0")
     .build();
 
   const swagger_document_factory = SwaggerModule.createDocument(app, swagger_config);
 
   SwaggerModule.setup("docs", app, swagger_document_factory, {
-    useGlobalPrefix: true
+    useGlobalPrefix: true,
+    jsonDocumentUrl: "swagger/json"
   });
 
   await app.listen(Number(process.env.PORT!));
