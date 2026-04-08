@@ -44,10 +44,23 @@ export class HistoricoService {
       }
     }
 
+    const originalname = file.originalname.split(".");
+    const timestamp = new Date();
+
+    const filename = [
+      `${originalname[0]}`,
+      `_${timestamp.getFullYear()}`,
+      `${String(timestamp.getMonth() + 1).padStart(2, '0')}`,
+      `${String(timestamp.getDate()).padStart(2, '0')}`,
+      `${String(timestamp.getHours()).padStart(2, '0')}`,
+      `${String(timestamp.getMinutes()).padStart(2, '0')}`,
+     `.${originalname[1]}`
+    ];
+
     // registrar el archivo a cargar
     const sql_result = await this.dt.query(`
       insert into archivo (nombre, zona) values ($1, $2) returning id
-    `, [file.originalname, data.zona]);
+    `, [filename.join(""), data.zona]);
 
     const archivo_id = sql_result[0].id;
 
