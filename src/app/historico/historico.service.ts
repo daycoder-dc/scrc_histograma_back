@@ -9,29 +9,29 @@ import "multer";
 
 @Injectable()
 export class HistoricoService {
-  constructor (
+  constructor(
     private readonly dt: DataSource,
     private readonly http: HttpService,
     private readonly ws: EventGateway
-  ) {}
+  ) { }
 
   async find_all() {
     return this.dt.query<any[]>(`
-      select distinct h.nic, h.orden, h.zona, h.tipo_brigada,
+      select h.nic, h.orden, h.zona, h.tipo_brigada,
       h.tipo_os, h.tecnico, to_char(h.fecha, 'YYYY-MM') as periodo,
       h.fecha, h.hora::time, to_char(h.hora::time, 'HH24:00') as tiempo,
       m.estado, m.valor_unitario, subaccion_subanomalia as tipo_actividad,
-      to_char(h.fecha, 'DD') as periodo_dia, h.accion
+      to_char(h.fecha, 'DD') as periodo_dia, h.accion, h.fecha_registro
       FROM historico h
       inner join maestro m on m.accion = h.accion
-      WHERE h.eliminado = $1
+      WHERE h.eliminado = false
       and h.fecha is not null
       and h.tipo_brigada is not null
       order by h.fecha asc, h.hora::time asc;
-    `, [false]);
+    `);
   }
 
-  async upload_file(file:Express.Multer.File, data:HistoricoDto) {
+  async upload_file(file: Express.Multer.File, data: HistoricoDto) {
     // verificar si el archivo fue cargado.
     {
       const sql_result = await this.dt.query<any[]>(`
@@ -54,7 +54,7 @@ export class HistoricoService {
       `${String(timestamp.getDate()).padStart(2, '0')}`,
       `${String(timestamp.getHours()).padStart(2, '0')}`,
       `${String(timestamp.getMinutes()).padStart(2, '0')}`,
-     `.${originalname[1]}`
+      `.${originalname[1]}`
     ];
 
     // registrar el archivo a cargar
@@ -73,7 +73,7 @@ export class HistoricoService {
 
     this.http.post(`${process.env.MICROSERVICE_HOST!}/ms/v1/history/upload`, form, {
       headers: {
-        ... form.getHeaders(),
+        ...form.getHeaders(),
         "X-API-KEY": process.env.MICROSERVICE_API_KEY!
       },
       timeout: 5 * 60 * 1000,
@@ -89,7 +89,7 @@ export class HistoricoService {
       }
     });
 
-    return {"id": archivo_id};
+    return { "id": archivo_id };
   }
 
   async get_date_update() {
