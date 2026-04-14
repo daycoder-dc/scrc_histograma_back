@@ -24,7 +24,14 @@ export class HistoricoService {
       m.estado, m.valor_unitario, subaccion_subanomalia as tipo_actividad,
       to_char(h.fecha, 'DD') as periodo_dia, h.accion
       FROM historico h
-      inner join maestro m on m.accion = h.accion
+      inner join maestro m on m.accion = h.accion and m.zona = (
+        case
+          when h.zona = 'ATLANTICO NORTE' then 'norte-centro'
+          when h.zona = 'ATLANTICO CENTRO' then 'norte-centro'
+          when h.zona = 'ATLANTICO SUR' then 'sur'
+          else null
+        end
+      )
       WHERE h.eliminado = false
       and h.fecha is not null
       and h.tipo_brigada is not null
