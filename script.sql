@@ -59,6 +59,9 @@ create table maestro (
   fecha_registro timestamptz default current_timestamp
 );
 
-drop table if exists historico;
-drop table if exists maestro;
+-- drop table if exists historico;
+-- drop table if exists maestro;
 
+CREATE INDEX idx_historico_performance
+ON historico (eliminado, fecha, hora)
+WHERE (fecha IS NOT NULL AND tipo_brigada IS NOT NULL);

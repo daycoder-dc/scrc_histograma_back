@@ -39,7 +39,8 @@ import { Module } from '@nestjs/common';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       synchronize: false,
-      logging: false
+      logging: false,
+      cache: true
     }),
     HistoricoModule,
     MasterModule,

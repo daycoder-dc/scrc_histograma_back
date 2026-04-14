@@ -3,9 +3,9 @@ import { EventGateway } from "@/app/event/event.gateway";
 import { HistoricoDto } from "./historico.dto";
 import { HttpService } from "@nestjs/axios";
 import { DataSource } from "typeorm";
-// import { Express } from "express";
+import { Response } from "express";
 import FormData from "form-data";
-import "multer";
+import { pack } from "msgpackr"
 
 @Injectable()
 export class HistoricoService {
@@ -15,13 +15,13 @@ export class HistoricoService {
     private readonly ws: EventGateway
   ) { }
 
-  async find_all() {
-    return this.dt.query<any[]>(`
+  async find_all(res: Response) {
+    const result = await this.dt.query(`
       select h.nic, h.orden, h.zona, h.tipo_brigada,
       h.tipo_os, h.tecnico, to_char(h.fecha, 'YYYY-MM') as periodo,
       h.fecha, h.hora::time, to_char(h.hora::time, 'HH24:00') as tiempo,
       m.estado, m.valor_unitario, subaccion_subanomalia as tipo_actividad,
-      to_char(h.fecha, 'DD') as periodo_dia, h.accion, h.fecha_registro
+      to_char(h.fecha, 'DD') as periodo_dia, h.accion
       FROM historico h
       inner join maestro m on m.accion = h.accion
       WHERE h.eliminado = false
@@ -29,6 +29,12 @@ export class HistoricoService {
       and h.tipo_brigada is not null
       order by h.fecha asc, h.hora::time asc;
     `);
+
+    const buffer = pack(result);
+
+    res.setHeader("Content-Type", "application/x-msgpack");
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
   }
 
   async upload_file(file: Express.Multer.File, data: HistoricoDto) {

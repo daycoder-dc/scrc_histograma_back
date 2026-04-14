@@ -37,7 +37,7 @@ async function bootstrap() {
   app.useBodyParser("urlencoded", { extended: true });
   app.useBodyParser("json", { limit: "500mb" });
   app.use(cookie_parser(process.env.SECRET));
-  app.use(compression());
+  app.use(compression({ level: 6, threshold: 1024 }));
 
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
