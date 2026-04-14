@@ -5,7 +5,8 @@ import { HttpService } from "@nestjs/axios";
 import { DataSource } from "typeorm";
 import { Response } from "express";
 import FormData from "form-data";
-import { pack } from "msgpackr"
+import { Packr } from "msgpackr";
+import { gzipSync } from "zlib";
 
 @Injectable()
 export class HistoricoService {
@@ -30,11 +31,18 @@ export class HistoricoService {
       order by h.fecha asc, h.hora::time asc;
     `);
 
-    const buffer = pack(result);
+    const packer = new Packr({
+      structuredClone: true,
+      useRecords: true
+    });
+
+    const buffer = packer.pack(result);
+    const compress_buffer = gzipSync(buffer, { level: 6 });
 
     res.setHeader("Content-Type", "application/x-msgpack");
-    res.setHeader("Content-Length", buffer.length);
-    res.send(buffer);
+    res.setHeader("Content-Encoding", "gzip");
+    res.setHeader("Content-Length", compress_buffer.length);
+    res.send(compress_buffer);
   }
 
   async upload_file(file: Express.Multer.File, data: HistoricoDto) {
