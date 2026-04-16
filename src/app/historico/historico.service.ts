@@ -1,7 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { EventGateway } from "@/app/event/event.gateway";
+import { SocketGateway } from "@/config/socket-gateway";
 import { HistoricoDto } from "./historico.dto";
+import { Historico } from "@/entity/historico";
 import { HttpService } from "@nestjs/axios";
+import { Maestro } from "@/entity/maestro";
+import { Archivo } from "@/entity/archivo";
 import { DataSource } from "typeorm";
 import { Response } from "express";
 import FormData from "form-data";
@@ -13,43 +16,53 @@ export class HistoricoService {
   constructor(
     private readonly dt: DataSource,
     private readonly http: HttpService,
-    private readonly ws: EventGateway
+    private readonly ws: SocketGateway
   ) { }
 
   async find_all(res: Response) {
-    const result = await this.dt.query(`
-      select h.nic, h.orden, h.zona, h.tipo_brigada,
-      h.tipo_os, h.tecnico, to_char(h.fecha, 'YYYY-MM') as periodo,
-      h.fecha, h.hora::time, to_char(h.hora::time, 'HH24:00') as tiempo,
-      m.estado, m.valor_unitario, subaccion_subanomalia as tipo_actividad,
-      to_char(h.fecha, 'DD') as periodo_dia, h.accion
-      FROM historico h
-      inner join maestro m on m.accion = h.accion and m.zona = (
-        case
-          when h.zona = 'ATLANTICO NORTE' then 'norte-centro'
-          when h.zona = 'ATLANTICO CENTRO' then 'norte-centro'
-          when h.zona = 'ATLANTICO SUR' then 'sur'
-          else null
-        end
-      )
-      WHERE h.eliminado = false
-      and h.fecha is not null
-      and h.tipo_brigada is not null
-      order by h.fecha asc, h.hora::time asc;
-    `);
+    try {
+      const query = await this.dt.createQueryBuilder()
+        .from(Historico, "h")
+        .innerJoin(Maestro, "m", `m.accion = h.accion and m.zona = (
+          case
+            when h.zona = 'ATLANTICO NORTE' then 'norte-centro'
+            when h.zona = 'ATLANTICO CENTRO' then 'norte-centro'
+            when h.zona = 'ATLANTICO SUR' then 'sur'
+            else null
+          end
+        )`)
+        .select([
+          "h.nic as nic", "h.orden as orden", "h.zona as zona", "h.tipo_brigada as tipo_brigada",
+          "h.tipo_os as tipo_os", "h.tecnico as tecnico", "to_char(h.fecha, 'YYYY-MM') as periodo",
+          "h.fecha as fecha", "h.hora::time as hora", "to_char(h.hora::time, 'HH24:00') as tiempo",
+          "m.estado as estado", "m.valor_unitario as valor_unitario", "h.subaccion_subanomalia as tipo_actividad",
+          "to_char(h.fecha, 'DD') as periodo_dia", "h.accion as accion"
+        ])
+        .where("h.eliminado = false")
+        .andWhere("h.fecha is not null")
+        .andWhere("h.tipo_brigada is not null")
+        .andWhere("h.tecnico is not null")
+        .orderBy("h.fecha", "ASC")
+        .addOrderBy("h.hora::time", "ASC")
+        .cache("history_query_cache")
+        .getRawMany();
 
-    const packer = new Packr({
-      structuredClone: true,
-      useRecords: true
-    });
+      const packer = new Packr({
+        structuredClone: true,
+        useRecords: true
+      });
 
-    const buffer = packer.pack(result);
-    const compress_buffer = gzipSync(buffer, { level: 6 });
+      const buffer = packer.pack(query);
+      const compress_buffer = gzipSync(buffer, { level: 6 });
 
-    res.setHeader("Content-Type", "application/x-msgpack");
-    res.setHeader("Content-Encoding", "gzip");
-    res.setHeader("Content-Length", compress_buffer.length);
-    res.send(compress_buffer);
+      res.setHeader("Content-Type", "application/x-msgpack");
+      res.setHeader("Content-Encoding", "gzip");
+      res.setHeader("Content-Length", compress_buffer.length);
+      res.send(compress_buffer);
+    } catch (e) {
+      console.error(e);
+      res.sendStatus(500).send(`Database error: ${e?.toString()}`);
+    }
   }
 
   async upload_file(file: Express.Multer.File, data: HistoricoDto) {
@@ -114,10 +127,11 @@ export class HistoricoService {
   }
 
   async get_date_update() {
-    return this.dt.query<any[]>(`
-      select a.fecha_registro from archivo a
-      order by a.fecha_registro desc
-      limit 1;
-    `);
+    return this.dt.createQueryBuilder()
+      .from(Archivo, "a")
+      .select("a.fecha_registro as fecha_registro")
+      .orderBy("a.fecha_registro", "DESC")
+      .limit(1)
+      .getRawOne();
   }
 }

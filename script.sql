@@ -1,67 +1,8 @@
-create table archivo (
-	id uuid primary key default gen_random_uuid(),
-	nombre varchar null,
-	zona varchar null,
-	eliminado boolean default false,
-	fecha_registro timestamptz default current_timestamp
-);
-
-CREATE TABLE historico (
-  id uuid primary key default gen_random_uuid(),
-  archivo_id text null,
-  nic VARCHAR NULL,
-  orden VARCHAR NULL,
-  contrata VARCHAR NULL,
-  territorio VARCHAR NULL,
-  zona VARCHAR NULL,
-  municipio VARCHAR NULL,
-  corregimiento VARCHAR NULL,
-  localidad_barrio VARCHAR NULL,
-  tarifa VARCHAR NULL,
-  tipo_actividad VARCHAR NULL,
-  actividad VARCHAR NULL,
-  direccion varchar NULL,
-  id_transformador VARCHAR NULL,
-  id_circuito VARCHAR NULL,
-  num_medidor VARCHAR NULL,
-  marca_medidor VARCHAR NULL,
-  deuda_act double precision NULL,
-  deuda_cierre double precision NULL,
-  cant_factura_act INT NULL,
-  cant_factura_cierre INT NULL,
-  tipo_os VARCHAR NULL,
-  descripcion_tipo_os varchar NULL,
-  tipo_suspension_solicitada VARCHAR NULL,
-  tipo_brigada VARCHAR NULL,
-  id_tecnico VARCHAR NULL,
-  tecnico VARCHAR NULL,
-  av_resultado VARCHAR NULL,
-  accion VARCHAR NULL,
-  subaccion_subanomalia VARCHAR NULL,
-  estado_osf VARCHAR NULL,
-  estado_siprem VARCHAR NULL,
-  fecha DATE NULL,
-  hora VARCHAR NULL,
-  eliminado boolean default false,
-  fecha_registro timestamptz default current_timestamp
-);
-
-create table maestro (
-  id uuid primary key default gen_random_uuid(),
-  archivo_id text null,
-  accion text null,
-  estado varchar null,
-  se_paga varchar null,
-  valor_unitario  double precision null,
-  tipo_actividad varchar null,
-  zona varchar null,
-  eliminado boolean default false,
-  fecha_registro timestamptz default current_timestamp
-);
-
--- drop table if exists historico;
--- drop table if exists maestro;
-
 CREATE INDEX idx_historico_performance
-ON historico (eliminado, fecha, hora)
-WHERE (fecha IS NOT NULL AND tipo_brigada IS NOT NULL);
+ON historico (fecha ASC, hora ASC)
+WHERE eliminado = false
+and fecha IS NOT NULL
+AND tipo_brigada IS NOT NULL;
+
+CREATE INDEX idx_maestro_lookup
+ON maestro (zona, accion);

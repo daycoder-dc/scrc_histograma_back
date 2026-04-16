@@ -1,50 +1,19 @@
+import { DatabaseConnection } from "@/config/database-connection";
 import { HistoricoModule } from "./historico/historico.module";
+import { SocketGateway } from "@/config/socket-gateway";
 import { MasterModule } from "./master/master.module";
-import { EventModule } from "./event/event.module";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Request, Response } from "express";
-import { LoggerModule } from "nestjs-pino";
+import { HttpLogger } from "@/config/http-logger";
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        name: "histograma",
-        autoLogging: true,
-        transport: {
-          target: "pino-pretty",
-          options: {
-            colorize: false,
-            igonre: "pid,hostname",
-            translateTime: "SYS:HH:MM:ss",
-            singleLine: true
-          }
-        },
-        serializers: {
-          req(req: Request) {
-            return `${req.method} - ${req.url}`;
-          },
-          res(res: Response) {
-            return `status - ${res.statusCode}`;
-          }
-        }
-      }
-    }),
-    TypeOrmModule.forRoot({
-      type: "postgres",
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      synchronize: false,
-      logging: false,
-      cache: true
-    }),
+    DatabaseConnection,
     HistoricoModule,
     MasterModule,
-    EventModule
+    HttpLogger,
+  ],
+  providers: [
+    SocketGateway
   ]
 })
 export class AppModule { }

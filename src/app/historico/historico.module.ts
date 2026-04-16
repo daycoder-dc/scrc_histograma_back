@@ -1,23 +1,21 @@
 import { HistoricoController } from "./historico.controller";
+import { SocketGateway } from "../../config/socket-gateway";
 import { HistoricoService } from "./historico.service";
-import { EventModule } from "@/app/event/event.module";
-import { EventGateway } from "../event/event.gateway";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature(),
+    TypeOrmModule,
     HttpModule,
-    EventModule
   ],
   controllers: [
     HistoricoController
   ],
   providers: [
     HistoricoService,
-    EventGateway,
+    SocketGateway,
   ]
 })
-export class HistoricoModule {}
+export class HistoricoModule { }
