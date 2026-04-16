@@ -22,8 +22,10 @@ import { Mapa } from "@/entity/mapa";
         type: "redis",
         duration: minutes(5),
         options: {
-          host: process.env.RD_HOST!,
-          port: parseInt(process.env.RD_PORT!),
+          socket: {
+            host: process.env.RD_HOST!,
+            port: parseInt(process.env.RD_PORT!),
+          },
           password: process.env.RD_PASS!
         }
       },

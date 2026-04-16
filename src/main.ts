@@ -24,9 +24,10 @@ async function bootstrap() {
 
   const redis = createClient({
     socket: {
-      host: process.env.RD_HOST,
-      port: parseInt(process.env.RD_PORT!)
-    }
+      host: process.env.RD_HOST!,
+      port: parseInt(process.env.RD_PORT!),
+    },
+    password: process.env.RD_PASS!
   });
 
   await redis.connect();

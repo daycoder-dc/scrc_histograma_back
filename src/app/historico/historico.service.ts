@@ -47,9 +47,6 @@ export class HistoricoService {
         .cache("history_query_cache")
         .getRawMany();
 
-
-      console.log(query[0]);
-
       const packer = new Packr({
         structuredClone: true,
         useRecords: true
