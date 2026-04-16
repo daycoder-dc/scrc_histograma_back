@@ -28,7 +28,8 @@ import Redis from "ioredis"
       ],
       storage: new ThrottlerStorageRedisService(new Redis({
         host: process.env.RD_HOST!,
-        port: parseInt(process.env.RD_PORT!)
+        port: parseInt(process.env.RD_PORT!),
+        password: process.env.RD_PASS!
       }))
     })
   ]

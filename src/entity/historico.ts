@@ -1,8 +1,8 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ schema: "public", name: "historico" })
 export class Historico {
-  @PrimaryColumn("uuid")
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ type: "text", nullable: true })
@@ -101,7 +101,7 @@ export class Historico {
   @Column({ type: "varchar", nullable: true })
   estado_siprem: string | null;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "date", nullable: true })
   fecha: string | null;
 
   @Column({ type: "varchar", nullable: true })
