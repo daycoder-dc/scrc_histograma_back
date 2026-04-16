@@ -6,6 +6,7 @@ import { HttpService } from "@nestjs/axios";
 import { Maestro } from "@/entity/maestro";
 import { Archivo } from "@/entity/archivo";
 import { DataSource } from "typeorm";
+import { Mapa } from "@/entity/mapa";
 import { Response } from "express";
 import FormData from "form-data";
 import { Packr } from "msgpackr";
@@ -23,7 +24,7 @@ export class HistoricoService {
     try {
       const query = await this.dt.createQueryBuilder()
         .from(Historico, "h")
-        .innerJoin(Maestro, "m", `m.accion = h.accion and m.zona = (
+        .innerJoinAndSelect(Maestro, "m", `m.accion = h.accion and m.zona = (
           case
             when h.zona = 'ATLANTICO NORTE' then 'norte-centro'
             when h.zona = 'ATLANTICO CENTRO' then 'norte-centro'
@@ -31,12 +32,13 @@ export class HistoricoService {
             else null
           end
         )`)
+        .leftJoinAndSelect(Mapa, "mp", "mp.nic = h.nic")
         .select([
           "h.nic as nic", "h.orden as orden", "h.zona as zona", "h.tipo_brigada as tipo_brigada",
           "h.tipo_os as tipo_os", "h.tecnico as tecnico", "to_char(h.fecha, 'YYYY-MM') as periodo",
           "h.fecha as fecha", "h.hora::time as hora", "to_char(h.hora::time, 'HH24:00') as tiempo",
           "m.estado as estado", "m.valor_unitario as valor_unitario", "h.subaccion_subanomalia as tipo_actividad",
-          "to_char(h.fecha, 'DD') as periodo_dia", "h.accion as accion"
+          "to_char(h.fecha, 'DD') as periodo_dia", "h.accion as accion", "mp.longitud as longitud", "mp.latitud as latitud"
         ])
         .where("h.eliminado = false")
         .andWhere("h.fecha is not null")
