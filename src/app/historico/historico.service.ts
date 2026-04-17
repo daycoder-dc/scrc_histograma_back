@@ -38,7 +38,8 @@ export class HistoricoService {
           "h.tipo_os as tipo_os", "h.tecnico as tecnico", "to_char(h.fecha, 'YYYY-MM') as periodo",
           "h.fecha as fecha", "h.hora::time as hora", "to_char(h.hora::time, 'HH24:00') as tiempo",
           "m.estado as estado", "m.valor_unitario as valor_unitario", "h.subaccion_subanomalia as tipo_actividad",
-          "to_char(h.fecha, 'DD') as periodo_dia", "h.accion as accion", "mp.longitud as longitud", "mp.latitud as latitud"
+          "to_char(h.fecha, 'DD') as periodo_dia", "h.accion as accion", "mp.longitud as longitud", "mp.latitud as latitud",
+          "h.localidad_barrio as barrio"
         ])
         .where("h.eliminado = false")
         .andWhere("h.fecha is not null")
