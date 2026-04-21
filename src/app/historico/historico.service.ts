@@ -47,7 +47,6 @@ export class HistoricoService {
         .andWhere("h.tecnico is not null")
         .orderBy("h.fecha", "ASC")
         .addOrderBy("h.hora::time", "ASC")
-        .cache("history_query_cache")
         .getRawMany();
 
       const packer = new Packr({
